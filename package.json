@@ -1,0 +1,60 @@
+{
+  "name": "ebisu",
+  "version": "1.0.0",
+  "description": "恵 ¦ Ebisu — Multi-Seller Discord Market Bot & Dashboard",
+  "main": "electron.js",
+  "scripts": {
+    "start": "node index.js",
+    "app": "electron electron.js",
+    "bot": "node bot/index.js",
+    "dashboard": "node dashboard/server.js",
+    "deploy": "node bot/deploy-commands.js",
+    "build": "electron-builder build --win"
+  },
+  "keywords": [],
+  "author": "Takumi Labs",
+  "license": "ISC",
+  "type": "commonjs",
+  "build": {
+    "appId": "com.takumilabs.ebisu",
+    "productName": "Ebisu",
+    "nodeGypRebuild": false,
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "files": [
+      "**/*",
+      "!database.sqlite",
+      "!dashboard/public/avatars/**",
+      "!.env",
+      "!*.log",
+      "!dist/**",
+      "!.git/**",
+      "!electron.zip"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.10.0",
+    "better-sqlite3-session-store": "^0.1.0",
+    "concurrently": "^10.0.0",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.1.1"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
+  }
+}

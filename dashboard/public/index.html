@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>恵 ¦ Ebisu — Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: #0e0e14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: #e2e2f0;
+    }
+
+    .card {
+      background: #16161f;
+      border: 1px solid #2e2b4a;
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 60px rgba(124, 58, 237, 0.08);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #a78bfa;
+      letter-spacing: -0.3px;
+    }
+
+    .logo p {
+      font-size: 13px;
+      color: #6b6b8a;
+      margin-top: 4px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8b8baa;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #1e1e2a;
+      border: 1px solid #2e2b4a;
+      border-radius: 8px;
+      color: #e2e2f0;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 20px;
+    }
+
+    input:focus { border-color: #7c3aed; }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #7c3aed;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    button:hover { background: #6d28d9; }
+    button:active { transform: scale(0.98); }
+
+    .error {
+      background: #2a1a1a;
+      border: 1px solid #7f1d1d;
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <h1>✦ 恵 ¦ Ebisu</h1>
+      <p>Seller Dashboard</p>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <label for="username">Username</label>
+    <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+
+    <button id="loginBtn" onclick="login()">Sign in</button>
+  </div>
+
+  <script>
+    document.getElementById('password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    async function login() {
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('error');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        showError('Please enter both username and password.');
+        return;
+      }
+
+      btn.innerHTML = '<span class="spinner"></span>Signing in...';
+      btn.disabled = true;
+      err.style.display = 'none';
+
+      try {
+        const res = await fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showError(data.error || 'Login failed.');
+          btn.innerHTML = 'Sign in';
+          btn.disabled = false;
+          return;
+        }
+        window.location.href = '/app.html';
+      } catch (e) {
+        showError('Could not reach the server.');
+        btn.innerHTML = 'Sign in';
+        btn.disabled = false;
+      }
+    }
+
+    function showError(msg) {
+      const err = document.getElementById('error');
+      err.textContent = msg;
+      err.style.display = 'block';
+    }
+
+    // Redirect if already logged in
+    fetch('/auth/me').then(r => r.json()).then(d => {
+      if (d.loggedIn) window.location.href = '/app.html';
+    });
+  </script>
+</body>
+</html>

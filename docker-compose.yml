@@ -1,0 +1,15 @@
+services:
+  akihiro:
+    build: .
+    container_name: ebisu
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./database.sqlite:/app/database.sqlite
+      - ./dashboard/public/avatars:/app/dashboard/public/avatars
+    env_file:
+      - .env
+    environment:
+      - DB_PATH=/app/database.sqlite
+      - DASHBOARD_PORT=3002

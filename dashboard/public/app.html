@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>恵 ¦ Ebisu</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0b0b12;
+      --bg2:      rgba(17,17,24,0.85);
+      --bg3:      rgba(23,23,31,0.9);
+      --bg4:      rgba(30,30,40,0.9);
+      --border:   #2a2a38;
+      --border2:  #35354a;
+      --purple:   #7c3aed;
+      --purple2:  #6d28d9;
+      --purple-l: #a78bfa;
+      --purple-xl:#ede9fe;
+      --text:     #e4e4f0;
+      --text2:    #9494b0;
+      --text3:    #5a5a75;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --yellow:   #f59e0b;
+    }
+
+    body {
+      background: var(--bg) url('https://cdn.discordapp.com/attachments/1508335499671109743/1509940495210647654/content.png?ex=6a1b012b&is=6a19afab&hm=0ee63aeb09706f3f38b14317ec60b93a51681b48fa62c9d565493f704d1edfac&') center center / cover fixed;
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 168px; min-height: 100vh;
+      background: rgba(10,10,18,0.92);
+      border-right: 1px solid rgba(42,42,56,0.8);
+      backdrop-filter: blur(12px);
+      display: flex; flex-direction: column;
+      padding: 20px 12px;
+      position: fixed; top: 0; left: 0; z-index: 20;
+    }
+    .sidebar-brand { padding: 4px 8px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .sidebar-brand .diamond { color: var(--purple-l); font-size: 18px; display: block; margin-bottom: 4px; }
+    .sidebar-brand .name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .sidebar-brand .sub { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 10px; border-radius: 7px;
+      font-size: 13px; color: var(--text2);
+      cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left;
+      transition: all .15s; margin-bottom: 1px; font-family: inherit;
+    }
+    .nav-item:hover { background: rgba(30,30,40,0.8); color: var(--text); }
+    .nav-item.active { background: rgba(124,58,237,.2); color: var(--purple-l); font-weight: 600; }
+    .nav-icon { font-size: 15px; flex-shrink: 0; }
+    .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 12px; }
+    .online-badge { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(23,23,31,0.8); border-radius: 8px; margin-bottom: 8px; }
+    .online-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; flex-shrink: 0; }
+    .online-info .online-label { font-size: 11px; color: var(--text3); }
+    .online-info .online-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .btn-signout { width: 100%; padding: 8px; background: none; border: 1px solid var(--border); border-radius: 7px; color: var(--text3); font-size: 12px; cursor: pointer; transition: all .15s; font-family: inherit; }
+    .btn-signout:hover { border-color: var(--border2); color: var(--text2); }
+
+    /* ── Main ── */
+    .main { margin-left: 168px; flex: 1; padding: 28px 32px; min-height: 100vh; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+
+    /* ── Panel (glass) ── */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid rgba(42,42,56,0.7);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(16px);
+    }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+    .count-pill { background: var(--bg4); border: 1px solid var(--border); border-radius: 20px; padding: 1px 8px; font-size: 11px; color: var(--text2); }
+    .panel-body { padding: 16px 20px; }
+
+    /* ── Stat cards ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg2); border: 1px solid rgba(42,42,56,0.7);
+      border-radius: 10px; padding: 18px 20px; backdrop-filter: blur(16px);
+    }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 10px; }
+    .stat-value { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-desc { font-size: 12px; color: var(--text3); }
+    .c-purple { color: var(--purple-l); }
+    .c-green  { color: var(--green); }
+    .c-red    { color: var(--red); }
+    .c-yellow { color: var(--yellow); }
+
+    /* ── Shop layout ── */
+    .shop-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+
+    /* ── Items column headers ── */
+    .items-header {
+      display: grid;
+      grid-template-columns: 20px 100px 1fr 110px 110px 88px;
+      gap: 8px;
+      padding: 0 12px 8px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .8px;
+      color: var(--text3);
+    }
+
+    /* ── Item row ── */
+    .item-row {
+      display: grid;
+      grid-template-columns: 20px 100px 1fr 110px 110px 88px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(23,23,31,0.8);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      transition: border-color .15s;
+    }
+    .item-row:hover { border-color: var(--border2); }
+    .item-row:focus-within { border-color: var(--purple); }
+
+    /* ── Category row ── */
+    .category-row {
+      display: grid;
+      grid-template-columns: 20px 1fr 88px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(124,58,237,0.07);
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .category-icon { color: var(--purple-l); font-size: 13px; text-align: center; }
+    .category-input {
+      background: transparent; border: none;
+      color: var(--purple-l); font-size: 13px; font-weight: 700;
+      outline: none; width: 100%; font-family: inherit;
+      letter-spacing: .3px;
+    }
+    .category-input::placeholder { color: rgba(167,139,250,0.4); }
+
+    .item-bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); flex-shrink: 0; margin: auto; }
+    .item-input { background: transparent; border: none; color: var(--text); font-size: 13px; outline: none; width: 100%; font-family: inherit; }
+    .item-input::placeholder { color: var(--text3); }
+    .emoji-input { font-family: monospace; font-size: 12px; color: var(--text2); }
+    .price-input { color: var(--yellow); }
+
+    .qty-control { display: flex; align-items: center; background: rgba(30,30,40,0.8); border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+    .qty-btn { width: 26px; height: 28px; background: none; border: none; color: var(--text2); font-size: 15px; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qty-btn:hover { background: var(--border); color: var(--text); }
+    .qty-value { width: 30px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text); background: transparent; border: none; outline: none; font-family: inherit; }
+
+    .row-actions { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+    .icon-btn { background: none; border: none; color: var(--text3); font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: all .15s; line-height: 1; }
+    .icon-btn:hover { color: var(--red); background: rgba(239,68,68,.1); }
+
+    .add-row-bar { display: flex; gap: 8px; margin-top: 8px; }
+    .add-btn {
+      flex: 1; border: 1px dashed var(--border); border-radius: 8px;
+      padding: 9px; text-align: center; color: var(--text3);
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all .15s; background: none; font-family: inherit;
+    }
+    .add-btn:hover { border-color: var(--purple); color: var(--purple-l); background: rgba(124,58,237,.04); }
+    .add-btn-cat:hover { border-color: var(--purple-l); }
+
+    /* ── Action bar ── */
+    .action-bar { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; font-family: inherit; }
+    .btn-primary { background: var(--purple); color: #fff; }
+    .btn-primary:hover { background: var(--purple2); }
+    .btn-ghost { background: rgba(23,23,31,0.8); border: 1px solid var(--border); color: var(--text2); backdrop-filter: blur(8px); }
+    .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+    .btn-danger { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: var(--red); }
+    .btn-danger:hover { background: rgba(239,68,68,.2); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-xs { padding: 3px 9px; font-size: 11px; }
+
+    /* ── Profile card ── */
+    .profile-card { background: var(--bg2); border: 1px solid rgba(42,42,56,0.7); border-radius: 12px; overflow: hidden; backdrop-filter: blur(16px); }
+    .profile-banner { height: 80px; background: linear-gradient(135deg,#3b1a7a 0%,#1e1b4b 100%); }
+    .profile-inner { padding: 0 20px 20px; }
+    .profile-avatar-wrap { margin-top: -36px; margin-bottom: 12px; position: relative; display: inline-block; }
+    .profile-avatar { width: 72px; height: 72px; border-radius: 50%; border: 3px solid rgba(17,17,24,0.9); background: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: #fff; overflow: hidden; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .avatar-upload-btn { position: absolute; bottom: 0; right: 0; width: 22px; height: 22px; background: var(--purple); border: 2px solid rgba(17,17,24,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; transition: background .15s; }
+    .avatar-upload-btn:hover { background: var(--purple2); }
+    .profile-name { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .profile-rank { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(124,58,237,.15); color: var(--purple-l); border: 1px solid rgba(124,58,237,.3); margin-bottom: 16px; }
+    .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .profile-stat { background: rgba(23,23,31,0.8); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .profile-stat-val { font-size: 20px; font-weight: 700; color: var(--purple-l); line-height: 1; }
+    .profile-stat-lbl { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .profile-divider { height: 1px; background: var(--border); margin: 16px 0; }
+    .profile-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); margin-bottom: 10px; }
+    .form-input-sm { width: 100%; padding: 8px 10px; background: rgba(23,23,31,0.8); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 13px; outline: none; transition: border-color .15s; font-family: inherit; }
+    .form-input-sm:focus { border-color: var(--purple); }
+    .form-input-sm::placeholder { color: var(--text3); }
+
+    /* ── Discord preview ── */
+    .preview-wrap { background: var(--bg2); border: 1px solid rgba(42,42,56,0.7); border-radius: 12px; overflow: hidden; margin-top: 12px; backdrop-filter: blur(16px); }
+    .preview-bar { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .preview-channel { font-size: 13px; font-weight: 600; color: var(--text2); }
+    .preview-channel span { color: var(--text3); margin-right: 2px; }
+    .preview-body-wrap { padding: 16px 20px; }
+    .discord-msg { display: flex; gap: 12px; }
+    .discord-avatar-sm { width: 36px; height: 36px; background: var(--purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; flex-shrink: 0; font-weight: 700; }
+    .discord-meta { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+    .discord-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .discord-bot-tag { background: var(--purple); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+    .discord-embed { border-left: 4px solid var(--purple); background: rgba(23,23,31,0.9); border-radius: 0 6px 6px 0; padding: 12px 16px; max-width: 480px; margin-top: 4px; }
+    .embed-title { font-size: 14px; font-weight: 700; color: var(--purple-xl); margin-bottom: 6px; }
+    .embed-desc { font-size: 13px; color: var(--text2); line-height: 1.7; white-space: pre-wrap; }
+    .embed-footer { font-size: 11px; color: var(--text3); margin-top: 10px; }
+
+    /* ── Config ── */
+    .cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); }
+    .form-input { padding: 9px 12px; background: rgba(23,23,31,0.8); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 13px; outline: none; transition: border-color .15s; font-family: inherit; backdrop-filter: blur(8px); }
+    .form-input:focus { border-color: var(--purple); }
+    .form-input::placeholder { color: var(--text3); }
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Purchases table ── */
+    .ptable { width: 100%; border-collapse: collapse; }
+    .ptable th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); border-bottom: 1px solid var(--border); }
+    .ptable td { padding: 12px 14px; border-bottom: 1px solid rgba(30,30,40,0.5); color: var(--text2); font-size: 13px; vertical-align: middle; }
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable tr:hover td { background: rgba(30,30,40,0.4); }
+    .badge { display: inline-flex; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-auto   { background: rgba(124,58,237,.15); color: var(--purple-l); border: 1px solid rgba(124,58,237,.3); }
+    .badge-manual { background: rgba(245,158,11,.1);  color: var(--yellow);   border: 1px solid rgba(245,158,11,.25); }
+
+    /* ── Admin ── */
+    .seller-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: rgba(23,23,31,0.7); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+    .seller-name { font-size: 13px; font-weight: 600; }
+    .seller-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 24px; right: 28px; background: rgba(17,17,24,0.95); border: 1px solid var(--purple); color: var(--purple-l); padding: 11px 18px; border-radius: 9px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(6px); transition: all .2s; z-index: 999; pointer-events: none; backdrop-filter: blur(12px); }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .empty { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <span class="diamond">✦</span>
+    <div class="name">恵 ¦ Ebisu</div>
+    <div class="sub">Dashboard</div>
+  </div>
+  <button class="nav-item active" id="nav-shop"   onclick="showPage('shop')">  <span class="nav-icon">🛍️</span> Shop Manager</button>
+  <button class="nav-item"        id="nav-config" onclick="showPage('config')"><span class="nav-icon">⚙️</span> Config</button>
+  <button class="nav-item"        id="nav-sales"  onclick="showPage('sales')"> <span class="nav-icon">📋</span> Purchase Log</button>
+  <button class="nav-item"        id="nav-admin"  onclick="showPage('admin')" style="display:none"><span class="nav-icon">👑</span> Admin</button>
+  <div class="sidebar-bottom">
+    <div class="online-badge">
+      <div class="online-dot"></div>
+      <div class="online-info">
+        <div class="online-label">Online</div>
+        <div class="online-name" id="sidebar-user">—</div>
+      </div>
+    </div>
+    <button class="btn-signout" onclick="logout()">Sign out</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- ── Shop Manager ── -->
+  <div class="page active" id="page-shop">
+    <div class="page-title">Shop Manager</div>
+    <div class="page-sub">Edit items, quantities, prices, and categories. Save to push changes live to Discord.</div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total items</div><div class="stat-value c-purple" id="s-total">0</div><div class="stat-desc">in shop</div></div>
+      <div class="stat-card"><div class="stat-label">In stock</div><div class="stat-value c-green" id="s-instock">0</div><div class="stat-desc">available</div></div>
+      <div class="stat-card"><div class="stat-label">Out of stock</div><div class="stat-value c-red" id="s-outstock">0</div><div class="stat-desc">items</div></div>
+      <div class="stat-card"><div class="stat-label">Total units</div><div class="stat-value c-yellow" id="s-units">0</div><div class="stat-desc">across all items</div></div>
+    </div>
+
+    <div class="shop-layout">
+      <!-- Left: items -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Items <span class="count-pill" id="item-count">0</span></div>
+          </div>
+          <div class="panel-body">
+            <!-- Column headers -->
+            <div class="items-header">
+              <div></div>
+              <div>Emoji</div>
+              <div>Name</div>
+              <div>Price</div>
+              <div>Quantity</div>
+              <div></div>
+            </div>
+            <div id="items-list"></div>
+            <div class="add-row-bar">
+              <button class="add-btn" onclick="addItemRow()">+ Add item</button>
+              <button class="add-btn add-btn-cat" onclick="addCategoryRow()">＋ Add category</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button class="btn btn-ghost" onclick="togglePreview()" id="preview-btn">👁 Show preview</button>
+          <button class="btn btn-primary" onclick="saveItems()">🚀 Save &amp; push to Discord</button>
+        </div>
+
+        <div id="preview-wrap" class="preview-wrap" style="display:none">
+          <div class="preview-bar">
+            <div class="preview-channel"><span>#</span>shop</div>
+          </div>
+          <div class="preview-body-wrap">
+            <div class="discord-msg">
+              <div class="discord-avatar-sm">A</div>
+              <div>
+                <div class="discord-meta">
+                  <span class="discord-name">恵 ¦ Ebisu</span>
+                  <span class="discord-bot-tag">BOT</span>
+                </div>
+                <div class="discord-embed">
+                  <div class="embed-title">✦ 恵 ¦ Ebisu — Shop</div>
+                  <div class="embed-desc" id="preview-body"></div>
+                  <div class="embed-footer" id="preview-footer"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: profile -->
+      <div>
+        <div class="profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-inner">
+            <div class="profile-avatar-wrap">
+              <div class="profile-avatar" id="profile-avatar-el">
+                <span id="profile-avatar-initial">?</span>
+              </div>
+              <label class="avatar-upload-btn" title="Upload photo">
+                ✎<input type="file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="uploadAvatar(this)" />
+              </label>
+            </div>
+            <div class="profile-name" id="profile-name">—</div>
+            <div class="profile-rank" id="profile-rank">—</div>
+            <div class="profile-stats">
+              <div class="profile-stat"><div class="profile-stat-val" id="pstat-items">0</div><div class="profile-stat-lbl">Items listed</div></div>
+              <div class="profile-stat"><div class="profile-stat-val" id="pstat-sales">0</div><div class="profile-stat-lbl">Total sales</div></div>
+              <div class="profile-stat"><div class="profile-stat-val" id="pstat-buyers">0</div><div class="profile-stat-lbl">Unique buyers</div></div>
+              <div class="profile-stat"><div class="profile-stat-val" id="pstat-visible">0</div><div class="profile-stat-lbl">Visible items</div></div>
+            </div>
+            <div class="profile-divider"></div>
+            <div class="profile-section-title">Change password</div>
+            <input class="form-input-sm" type="password" id="new-pw" placeholder="New password (min 6 chars)" style="margin-bottom:8px" />
+            <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="changePassword()">Update password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Config ── -->
+  <div class="page" id="page-config">
+    <div class="page-title">Configuration</div>
+    <div class="page-sub">Paste your Discord channel, category, and role IDs. Right-click any channel in Discord → Copy ID.</div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Channel & Role IDs</div></div>
+      <div class="panel-body">
+        <div class="cfg-grid">
+          <div class="form-group"><label class="form-label">Shop channel ID</label><input class="form-input" id="cfg-shop" placeholder="Where the shop embed lives" /></div>
+          <div class="form-group"><label class="form-label">Ticket panel channel ID</label><input class="form-input" id="cfg-ticket-panel" placeholder="Where the ticket panel is posted" /></div>
+          <div class="form-group"><label class="form-label">Ticket category ID</label><input class="form-input" id="cfg-category" placeholder="Category where tickets are created" /></div>
+          <div class="form-group"><label class="form-label">Vouches channel ID</label><input class="form-input" id="cfg-vouch" placeholder="Where vouches are posted" /></div>
+          <div class="form-group"><label class="form-label">Purchase log channel ID</label><input class="form-input" id="cfg-log" placeholder="Where purchases are logged" /></div>
+          <div class="form-group"><label class="form-label">Stock updates channel ID</label><input class="form-input" id="cfg-stock" placeholder="Where stock pings go" /></div>
+          <div class="form-group"><label class="form-label">Customer role ID</label><input class="form-input" id="cfg-role" placeholder="Role pinged on stock updates" /></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="saveConfig()">Save config</button>
+          <button class="btn btn-ghost" onclick="postShopEmbed()">📢 Post shop embed</button>
+          <button class="btn btn-ghost" onclick="postTicketEmbed()">🎫 Post ticket embed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Purchase Log ── -->
+  <div class="page" id="page-sales">
+    <div class="page-title">Purchase Log</div>
+    <div class="page-sub">Every transaction through your tickets or manually logged.</div>
+    <div class="stats-row" style="grid-template-columns:repeat(2,1fr);max-width:400px">
+      <div class="stat-card"><div class="stat-label">Total sales</div><div class="stat-value c-purple" id="stat-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Unique buyers</div><div class="stat-value c-purple" id="stat-buyers">—</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">History</div></div>
+      <div class="panel-body" style="padding:0">
+        <table class="ptable">
+          <thead><tr><th>Buyer</th><th>Items</th><th>Amount</th><th>Type</th><th>Date</th><th></th></tr></thead>
+          <tbody id="purchases-tbody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Admin ── -->
+  <div class="page" id="page-admin">
+    <div class="page-title">Admin</div>
+    <div class="page-sub">Create and manage seller accounts.</div>
+    <div class="panel" style="max-width:520px">
+      <div class="panel-header"><div class="panel-title">Create seller</div></div>
+      <div class="panel-body">
+        <div class="cfg-grid">
+          <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="new-username" placeholder="e.g. seller_bob" /></div>
+          <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="new-password" placeholder="Temporary password" /></div>
+        </div>
+        <div style="margin-top:16px"><button class="btn btn-primary" onclick="createSeller()">Create seller</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">All sellers</div></div>
+      <div class="panel-body" id="sellers-list"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let currentRole = '';
+let previewVisible = false;
+
+async function boot() {
+  const me = await fetch('/auth/me').then(r => r.json());
+  if (!me.loggedIn) { window.location.href = '/'; return; }
+  currentRole = me.role;
+  document.getElementById('sidebar-user').textContent = me.username;
+  if (me.role === 'admin') document.getElementById('nav-admin').style.display = 'flex';
+  loadItems(); loadConfig(); loadSales(); loadProfile();
+  if (me.role === 'admin') loadSellers();
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Profile ──────────────────────────────────────────────────────────────
+async function loadProfile() {
+  const p = await fetch('/api/profile').then(r => r.json());
+  document.getElementById('profile-name').textContent = p.username;
+  document.getElementById('profile-rank').textContent = p.role === 'admin' ? '👑 Admin' : '🏷️ Seller';
+  document.getElementById('profile-avatar-initial').textContent = p.username[0].toUpperCase();
+  document.getElementById('pstat-items').textContent   = p.total_items;
+  document.getElementById('pstat-sales').textContent   = p.total_sales;
+  document.getElementById('pstat-buyers').textContent  = p.unique_buyers;
+  document.getElementById('pstat-visible').textContent = p.visible_items;
+  if (p.avatar) {
+    document.getElementById('profile-avatar-el').innerHTML = `<img src="${p.avatar}?t=${Date.now()}" />`;
+  }
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0]; if (!file) return;
+  const form = new FormData(); form.append('avatar', file);
+  const res = await fetch('/api/profile/avatar', { method: 'POST', body: form });
+  if (res.ok) { toast('✅ Avatar updated!'); loadProfile(); }
+  else toast('❌ Upload failed.');
+}
+
+async function changePassword() {
+  const pw = document.getElementById('new-pw').value; if (!pw) return;
+  const res = await fetch('/api/profile/password', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw })
+  });
+  if (res.ok) { toast('✅ Password updated!'); document.getElementById('new-pw').value = ''; }
+  else { const d = await res.json(); toast('❌ ' + (d.error || 'Failed.')); }
+}
+
+// ── Items ─────────────────────────────────────────────────────────────────
+async function loadItems() {
+  const items = await fetch('/api/items').then(r => r.json());
+  document.getElementById('items-list').innerHTML = '';
+  items.forEach(item => {
+    if (item.is_category) addCategoryRow(item);
+    else renderItemRow(item);
+  });
+  updateStats(); updatePreview();
+}
+
+function renderItemRow(item = {}) {
+  const div = document.createElement('div');
+  div.className = 'item-row';
+  div.dataset.id = item.id || '';
+  div.dataset.type = 'item';
+  const qty = item.quantity ?? 0;
+  div.innerHTML = `
+    <div class="item-bullet"></div>
+    <input class="item-input emoji-input" data-field="emoji"
+      placeholder="<:emoji:id>" value="${escHtml(item.emoji||'')}" oninput="onItemChange()" />
+    <input class="item-input" data-field="name"
+      placeholder="Item name" value="${escHtml(item.name||'')}" oninput="onItemChange()" />
+    <input class="item-input price-input" data-field="price"
+      placeholder="e.g. $10" value="${escHtml(item.price||'')}" oninput="onItemChange()" />
+    <div class="qty-control">
+      <button class="qty-btn" onclick="changeQty(this,-1)">−</button>
+      <input class="qty-value" type="number" min="0" value="${qty}" data-field="quantity" oninput="onItemChange()" />
+      <button class="qty-btn" onclick="changeQty(this,1)">+</button>
+    </div>
+    <div class="row-actions">
+      <button class="icon-btn" onclick="deleteRow(this, ${item.id||'null'})" title="Delete">🗑️</button>
+    </div>
+  `;
+  document.getElementById('items-list').appendChild(div);
+}
+
+function addCategoryRow(item = {}) {
+  const div = document.createElement('div');
+  div.className = 'category-row';
+  div.dataset.id = item.id || '';
+  div.dataset.type = 'category';
+  div.innerHTML = `
+    <div class="category-icon">§</div>
+    <input class="category-input" data-field="name"
+      placeholder="Category name..." value="${escHtml(item.name||'')}" oninput="onItemChange()" />
+    <div class="row-actions">
+      <button class="icon-btn" onclick="deleteRow(this, ${item.id||'null'})" title="Delete">🗑️</button>
+    </div>
+  `;
+  document.getElementById('items-list').appendChild(div);
+  onItemChange();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function changeQty(btn, delta) {
+  const inp = btn.parentElement.querySelector('.qty-value');
+  inp.value = Math.max(0, (parseInt(inp.value)||0) + delta);
+  onItemChange();
+}
+
+function onItemChange() { updateStats(); updatePreview(); }
+
+async function deleteRow(btn, id) {
+  if (id && !confirm('Permanently delete this? This cannot be undone.')) return;
+  if (id) {
+    const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
+    if (!res.ok) { toast('❌ Delete failed.'); return; }
+  }
+  btn.closest('.item-row, .category-row').remove();
+  updateStats(); updatePreview();
+  toast('🗑️ Deleted.');
+}
+
+function addItemRow() { renderItemRow(); updateStats(); }
+
+function getRowData() {
+  const rows = [...document.querySelectorAll('#items-list .item-row, #items-list .category-row')];
+  return rows.map(row => {
+    const isCat = row.dataset.type === 'category';
+    return {
+      id: row.dataset.id ? parseInt(row.dataset.id) : null,
+      is_category: isCat ? 1 : 0,
+      name:  row.querySelector('[data-field="name"]')?.value.trim() || '',
+      emoji: isCat ? '' : (row.querySelector('[data-field="emoji"]')?.value.trim() || ''),
+      price: isCat ? '' : (row.querySelector('[data-field="price"]')?.value.trim() || ''),
+      quantity: isCat ? 0 : (parseInt(row.querySelector('[data-field="quantity"]')?.value)||0),
+      visible: 1,
+    };
+  }).filter(i => i.name);
+}
+
+function updateStats() {
+  const rows = getRowData().filter(i => !i.is_category);
+  document.getElementById('s-total').textContent    = rows.length;
+  document.getElementById('s-instock').textContent  = rows.filter(i => i.quantity > 0).length;
+  document.getElementById('s-outstock').textContent = rows.filter(i => i.quantity === 0).length;
+  document.getElementById('s-units').textContent    = rows.reduce((a,i) => a+i.quantity, 0);
+  document.getElementById('item-count').textContent = rows.length;
+}
+
+async function saveItems() {
+  const items = getRowData();
+  const res = await fetch('/api/items/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items })
+  });
+  if (res.ok) { toast('✅ Saved and pushed to Discord!'); loadItems(); loadProfile(); }
+  else toast('❌ Save failed.');
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────
+function togglePreview() {
+  previewVisible = !previewVisible;
+  document.getElementById('preview-wrap').style.display = previewVisible ? 'block' : 'none';
+  document.getElementById('preview-btn').textContent = previewVisible ? '🙈 Hide preview' : '👁 Show preview';
+  if (previewVisible) updatePreview();
+}
+
+function updatePreview() {
+  if (!previewVisible) return;
+  const items = getRowData();
+  const lines = [];
+  if (!items.length) {
+    lines.push('*No items listed yet.*');
+  } else {
+    for (const i of items) {
+      if (i.is_category) {
+        lines.push(`\n**— ${i.name} —**`);
+      } else {
+        const price = i.price ? ` · ${i.price}` : '';
+        const s = i.quantity > 0 ? `✅ **${i.quantity}** in stock` : '❌ Out of stock';
+        lines.push(`${i.emoji||'•'} **${i.name}**${price} — ${s}`);
+      }
+    }
+  }
+  document.getElementById('preview-body').textContent =
+    'Open a purchase ticket to buy.\nStock updates automatically after each vouch.\n' + lines.join('\n');
+  document.getElementById('preview-footer').textContent = 'Last updated · ' + new Date().toUTCString();
+}
+
+// ── Config ────────────────────────────────────────────────────────────────
+async function loadConfig() {
+  const cfg = await fetch('/api/config').then(r => r.json());
+  document.getElementById('cfg-shop').value         = cfg.shop_channel_id || '';
+  document.getElementById('cfg-ticket-panel').value = cfg.ticket_panel_channel_id || '';
+  document.getElementById('cfg-category').value     = cfg.ticket_category_id || '';
+  document.getElementById('cfg-vouch').value        = cfg.vouch_channel_id || '';
+  document.getElementById('cfg-log').value          = cfg.log_channel_id || '';
+  document.getElementById('cfg-stock').value        = cfg.stock_updates_channel_id || '';
+  document.getElementById('cfg-role').value         = cfg.customer_role_id || '';
+}
+
+async function saveConfig() {
+  const body = {
+    shop_channel_id:          document.getElementById('cfg-shop').value.trim(),
+    ticket_panel_channel_id:  document.getElementById('cfg-ticket-panel').value.trim(),
+    ticket_category_id:       document.getElementById('cfg-category').value.trim(),
+    vouch_channel_id:         document.getElementById('cfg-vouch').value.trim(),
+    log_channel_id:           document.getElementById('cfg-log').value.trim(),
+    stock_updates_channel_id: document.getElementById('cfg-stock').value.trim(),
+    customer_role_id:         document.getElementById('cfg-role').value.trim(),
+  };
+  const res = await fetch('/api/config/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  if (res.ok) toast('✅ Config saved!');
+  else toast('❌ Save failed.');
+}
+
+async function postShopEmbed() {
+  const res = await fetch('/api/shop/post', { method: 'POST' });
+  if (res.ok) toast('✅ Shop embed posted!');
+  else { const d = await res.json(); toast('❌ ' + (d.error||'Failed — save config first.')); }
+}
+
+async function postTicketEmbed() {
+  const res = await fetch('/api/ticket/post', { method: 'POST' });
+  if (res.ok) toast('✅ Ticket panel posted!');
+  else { const d = await res.json(); toast('❌ ' + (d.error||'Failed — save config first.')); }
+}
+
+// ── Sales ─────────────────────────────────────────────────────────────────
+async function loadSales() {
+  const [purchases, stats] = await Promise.all([
+    fetch('/api/purchases').then(r => r.json()),
+    fetch('/api/stats').then(r => r.json()),
+  ]);
+  document.getElementById('stat-total').textContent  = stats.total_sales ?? 0;
+  document.getElementById('stat-buyers').textContent = stats.unique_buyers ?? 0;
+  const tbody = document.getElementById('purchases-tbody');
+  if (!purchases.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No sales yet.</td></tr>'; return; }
+  tbody.innerHTML = purchases.map(p => {
+    const items = p.items_json.map(i => `${i.name} ×${i.qty}`).join(', ');
+    const date = new Date(p.date + 'Z').toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const badge = p.type === 'manual'
+      ? '<span class="badge badge-manual">manual</span>'
+      : '<span class="badge badge-auto">auto</span>';
+    return `<tr>
+      <td style="color:var(--text)"><@${p.discord_id}><br><span style="font-size:11px;color:var(--text3)">${p.discord_id}</span></td>
+      <td>${items}</td><td style="color:var(--text)">${p.amount||'—'}</td>
+      <td>${badge}</td><td style="font-size:12px">${date}</td>
+      <td><button class="btn btn-danger btn-xs" onclick="deletePurchase(${p.id})">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function deletePurchase(id) {
+  if (!confirm('Delete this entry?')) return;
+  const res = await fetch(`/api/purchases/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast('🗑️ Entry deleted.'); loadSales(); }
+  else toast('❌ Delete failed.');
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────
+async function loadSellers() {
+  const sellers = await fetch('/api/admin/sellers').then(r => r.json());
+  const list = document.getElementById('sellers-list');
+  if (!sellers.length) { list.innerHTML = '<div class="empty">No sellers yet.</div>'; return; }
+  list.innerHTML = sellers.map(s => `
+    <div class="seller-row">
+      <div><div class="seller-name">${s.username}</div><div class="seller-meta">${s.role} · joined ${new Date(s.created_at).toLocaleDateString()}</div></div>
+      <button class="btn btn-danger btn-sm" onclick="deleteSeller(${s.id},'${s.username}')">Delete</button>
+    </div>`).join('');
+}
+
+async function createSeller() {
+  const username = document.getElementById('new-username').value.trim();
+  const password = document.getElementById('new-password').value;
+  if (!username || !password) { toast('❌ Fill both fields.'); return; }
+  const res = await fetch('/api/admin/sellers', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await res.json();
+  if (res.ok) { toast(`✅ Seller "${username}" created!`); document.getElementById('new-username').value=''; document.getElementById('new-password').value=''; loadSellers(); }
+  else toast('❌ ' + (data.error||'Failed.'));
+}
+
+async function deleteSeller(id, name) {
+  if (!confirm(`Delete "${name}"? This removes all their data.`)) return;
+  const res = await fetch(`/api/admin/sellers/${id}`, { method: 'DELETE' });
+  if (res.ok) { toast(`✅ Deleted "${name}".`); loadSellers(); }
+  else toast('❌ Delete failed.');
+}
+
+async function logout() {
+  await fetch('/auth/logout', { method: 'POST' });
+  window.location.href = '/';
+}
+
+boot();
+</script>
+</body>
+</html>
