@@ -3,63 +3,82 @@
 <img src="https://i.ibb.co/7dLKQDxQ/Ebisu-Profile.png" width="30%" />
 
 # 恵 ¦ Ebisu
+
 ### Multi-Seller Discord Market Bot & Dashboard
 
-*A production-ready Discord bot with a live shop, ticket system, vouch logging, and a web dashboard — built for sellers.*
+*A production-ready Discord bot with a live shop, ticket system, vouch logging, and a full web dashboard — built for serious sellers.*
 
 ---
 
-![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![Discord.js](https://img.shields.io/badge/Discord.js-v14-5865F2?style=for-the-badge&logo=discord&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge\&logo=nodedotjs\&logoColor=white)
+![Discord.js](https://img.shields.io/badge/Discord.js-v14-5865F2?style=for-the-badge\&logo=discord\&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=for-the-badge\&logo=docker\&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-database-003B57?style=for-the-badge\&logo=sqlite\&logoColor=white)
 
 </div>
 
 ---
 
+## ✦ Overview
+
+**Ebisu** is a scalable multi-seller Discord marketplace system designed for automation, security, and ease of use.
+
+It combines:
+
+* a **Discord bot** (tickets, shop, vouches)
+* a **web dashboard** (seller + admin control)
+* and a **self-contained Docker setup**
+
+---
+
 ## ✦ Features
 
-- **🎫 Ticket System** — Buyers open private tickets per seller. One ticket at a time enforced.
-- **🛍️ Live Shop Embed** — Auto-updates on every vouch. Categories, prices, stock status.
-- **⭐ Vouch System** — Seller fills deal info, buyer confirms. Posts to vouches channel automatically.
-- **📋 Purchase Log** — Every transaction logged with buyer, items, amount, and timestamp.
-- **📢 Stock Notifications** — Pings a role when items sell out or get restocked.
-- **🖥️ Web Dashboard** — Sellers manage their own shop, config, and sales. Admin manages all sellers.
-- **🐳 Docker Ready** — Runs in a single container. Zero dependency headaches.
-- **🔒 Multi-Seller** — Each seller has isolated items, channels, purchases, and config.
+* 🎫 **Ticket System** — One active ticket per buyer, per seller
+* 🛍️ **Live Shop Embed** — Auto-updating shop with stock + categories
+* ⭐ **Vouch System** — Buyer confirmation required before logging
+* 📋 **Purchase Logs** — Full transaction tracking
+* 📢 **Stock Notifications** — Alerts when items sell out/restock
+* 🖥️ **Web Dashboard** — Full seller & admin control panel
+* 🔒 **Multi-Seller Isolation** — Each seller has independent data
+* 🐳 **Docker Ready** — One-command deployment
 
 ---
 
 ## ✦ Tech Stack
 
-| Layer | Tool |
-|---|---|
-| Bot | Discord.js v14 |
-| Database | SQLite (better-sqlite3) |
-| Dashboard | Express + Vanilla JS |
-| Auth | express-session + bcrypt |
-| Runtime | Node.js 22 |
-| Hosting | Docker |
-| Tunnel | ngrok / Cloudflare |
+| Layer     | Tool                     |
+| --------- | ------------------------ |
+| Bot       | Discord.js v14           |
+| Database  | SQLite (better-sqlite3)  |
+| Dashboard | Express + Vanilla JS     |
+| Auth      | express-session + bcrypt |
+| Runtime   | Node.js 22               |
+| Hosting   | Docker                   |
 
 ---
 
-## ✦ Setup
+## ✦ Quick Start
 
-### Prerequisites
-- Node.js 22+
-- Docker Desktop
-- A Discord bot token
+### 1. Clone the repository
 
-### 1. Clone the repo
 ```bash
 git clone https://github.com/Takumi-Labs-Dev/Ebisu.git
 cd Ebisu
 npm install
 ```
 
-### 2. Create your `.env` file
+---
+
+### 2. Setup environment variables
+
+Create a `.env` file based on `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Then edit it:
+
 ```env
 BOT_TOKEN=your_bot_token_here
 CLIENT_ID=your_application_client_id
@@ -69,77 +88,109 @@ DASHBOARD_PORT=3002
 DB_PATH=./database.sqlite
 ```
 
+---
+
 ### 3. Register slash commands
+
 ```bash
 node bot/deploy-commands.js
 ```
 
-### 4. Create your admin account
+---
+
+### 4. Create admin account
+
 ```bash
 node -e "const db = require('./bot/db/index.js'); db.createUser('admin','yourpassword','admin').then(id => { console.log('Admin created, id:', id); process.exit(0); })"
 ```
 
-### 5. Start with Docker
+---
+
+### 5. Run the app
+
+#### Option A — Docker (recommended)
+
 ```bash
 docker-compose up --build -d
 ```
 
-### 6. Open the dashboard
+#### Option B — Local
+
+```bash
+node bot/index.js
+node dashboard/server.js
+```
+
+---
+
+### 6. Access dashboard
+
+```
 http://localhost:3002
+```
 
 ---
 
 ## ✦ Bot Commands
 
-| Command | Description |
-|---|---|
-| `/ticket-panel` | Posts the ticket panel embed in the current channel |
-| `/post-shop` | Posts the shop embed in your configured shop channel |
-| `/manual-log` | Logs a deal made outside Discord |
+| Command         | Description         |
+| --------------- | ------------------- |
+| `/ticket-panel` | Create ticket panel |
+| `/post-shop`    | Post shop embed     |
+| `/manual-log`   | Log external deals  |
 
 ---
 
 ## ✦ How It Works
-Buyer clicks Purchase in ticket panel
+
+```
+Buyer clicks "Purchase"
 ↓
-Private ticket channel created
+Private ticket is created
 ↓
-Seller fills deal info (items + amount)
+Seller inputs deal details
 ↓
-Buyer clicks Submit Vouch
+Buyer confirms vouch
 ↓
-Stock subtracted → Shop embed updated
-Purchase logged → Vouch posted
-Stock notification sent
+Stock updates + logs saved
+↓
+Vouch posted automatically
+```
 
 ---
 
-## ✦ Dashboard Pages
+## ✦ Dashboard
 
-| Page | Access | Description |
-|---|---|---|
-| Shop Manager | Seller | Add/edit items, categories, prices, quantities |
-| Config | Seller | Set channel IDs, post embeds |
-| Purchase Log | Seller | View all sales and stats |
-| Admin | Admin only | Create/delete seller accounts |
+| Page         | Access | Description           |
+| ------------ | ------ | --------------------- |
+| Shop Manager | Seller | Manage items & stock  |
+| Config       | Seller | Set channels & embeds |
+| Purchase Log | Seller | View sales            |
+| Admin Panel  | Admin  | Manage sellers        |
 
 ---
 
 ## ✦ Environment Variables
 
-| Variable | Description |
-|---|---|
-| `BOT_TOKEN` | Your Discord bot token |
-| `CLIENT_ID` | Your Discord application ID |
-| `GUILD_ID` | Your Discord server ID |
-| `SESSION_SECRET` | Random string for session encryption |
-| `DASHBOARD_PORT` | Port the dashboard runs on (default 3002) |
-| `DB_PATH` | Path to SQLite database file |
+| Variable       | Description            |
+| -------------- | ---------------------- |
+| BOT_TOKEN      | Discord bot token      |
+| CLIENT_ID      | Discord application ID |
+| GUILD_ID       | Server ID              |
+| SESSION_SECRET | Session encryption     |
+| DASHBOARD_PORT | Dashboard port         |
+| DB_PATH        | SQLite database path   |
+
+---
+
+## ✦ Notes
+
+* `node_modules`, `.env`, and build files are **ignored for security and performance**
+* Database is auto-created on first run
+* Designed for **scaling into SaaS deployments**
 
 ---
 
 ## ✦ License
 
 Private — All rights reserved © Takumi Labs
-
-</div>
